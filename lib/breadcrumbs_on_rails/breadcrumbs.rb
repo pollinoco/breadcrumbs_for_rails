@@ -76,8 +76,8 @@ module BreadcrumbsOnRails
     class SimpleBuilder < Builder
 
       def render
-        @elements.collect do |element|
-          render_element(element)
+        @elements.collect.with_index do |element, index|
+          render_element(element, index+1)
         end.join(@options[:separator] || "")
       end
 
@@ -86,7 +86,7 @@ module BreadcrumbsOnRails
         if element.path == nil
           content = compute_name(element) + meta_position
         else
-          content = @context.link_to_unless_current(compute_name(element), compute_path(element), element.options, itemprop: "item") + meta_position
+          content = @context.link_to_unless_current(compute_name(element), compute_path(element), itemprop: "item") + meta_position
         end
         if @options[:tag]
           # @context.content_tag(@options[:tag], content)
