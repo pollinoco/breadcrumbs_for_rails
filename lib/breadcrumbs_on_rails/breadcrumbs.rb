@@ -16,16 +16,14 @@ module BreadcrumbsOnRails
     # and implement the following abstract methods:
     #
     # * <tt>#render</tt>: Renders and returns the collection of navigation elements
-    #
     class Builder
 
       # Initializes a new Builder with <tt>context</tt>,
       # <tt>element</tt> and <tt>options</tt>.
       #
-      # @param [ActionView::Base] context The view context.
-      # @param [Array<Element>] elements The collection of Elements.
-      # @param [Hash] options Hash of options to customize the rendering behavior.
-      #
+      # @param context [ActionView::Base] the view context
+      # @param elements [Array<Element>] the collection of Elements
+      # @param options [Hash] options to customize the rendering behavior
       def initialize(context, elements, options = {})
         @context  = context
         @elements = elements
@@ -34,9 +32,9 @@ module BreadcrumbsOnRails
 
       # Renders Elements and returns the Breadcrumb navigation for the view.
       #
-      # @return [String] The result of the breadcrumb rendering.
-      #
       # @abstract You must implement this method in your custom Builder.
+      #
+      # @return [String] the result of the breadcrumb rendering
       def render
         raise NotImplementedError
       end
@@ -75,12 +73,11 @@ module BreadcrumbsOnRails
     # The SimpleBuilder accepts a limited set of options.
     # If you need more flexibility, create a custom Builder and
     # pass the option :builder => BuilderClass to the <tt>render_breadcrumbs</tt> helper method.
-    #
     class SimpleBuilder < Builder
 
       def render
-        @elements.collect.with_index do |element, index|
-          render_element(element, index+1)
+        @elements.collect do |element|
+          render_element(element)
         end.join(@options[:separator] || "")
       end
 
@@ -89,7 +86,7 @@ module BreadcrumbsOnRails
         if element.path == nil
           content = compute_name(element) + meta_position
         else
-          content = @context.link_to_unless_current(compute_name(element), compute_path(element), itemprop: "item") + meta_position
+          content = @context.link_to_unless_current(compute_name(element), compute_path(element), element.options, itemprop: "item") + meta_position
         end
         if @options[:tag]
           # @context.content_tag(@options[:tag], content)
@@ -103,23 +100,21 @@ module BreadcrumbsOnRails
 
 
     # Represents a navigation element in the breadcrumb collection.
-    #
     class Element
 
-      # @return [String] The element/link name.
+      # @return [String] the element/link name
       attr_accessor :name
-      # @return [String] The element/link URL.
+      # @return [String] the element/link URL
       attr_accessor :path
-      # @return [Hash] The element/link options.
+      # @return [Hash] the element/link options
       attr_accessor :options
 
       # Initializes the Element with given parameters.
       #
-      # @param  [String] name The element/link name.
-      # @param  [String] path The element/link URL.
-      # @param  [Hash] options The element/link options.
+      # @param  name [String] the element/link name
+      # @param  path [String] the element/link URL
+      # @param  options [Hash] the element/link options
       # @return [Element]
-      #
       def initialize(name, path = nil, options = {})
         self.name     = name
         self.path     = path
